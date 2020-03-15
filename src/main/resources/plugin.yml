@@ -1,0 +1,15 @@
+name: $name
+version: $version
+author: shirokuro
+# Suppress warnings that reported if using 1.13+ servers
+api-version: 1.13
+description: ローマ字で書かれたメッセージを日本語に変換します
+website: https://github.com/kuro46/JapaneseChat/
+load: STARTUP
+main: com.github.kuro46.japanesechat.Initializer
+commands:
+  jp:
+    description: |
+      メッセージを日本語に変換するかどうかを指定します。
+      何も指定しなかった場合、現在の状態がオフならオンに、オンならオフに変更します。
+    usage: "Usage: /<command> [on|off|help]"

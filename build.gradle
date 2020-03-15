@@ -1,0 +1,83 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '5.1.0'
+    id 'net.ltgt.errorprone' version '1.1.0'
+    id 'io.freefair.lombok' version '4.1.2'
+    id 'checkstyle'
+    id 'maven'
+    id 'java'
+}
+
+group = 'com.github.kuro46'
+version = '0.1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots' }
+}
+
+dependencies {
+    // Bukkit
+    compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
+    // Gson
+    implementation 'com.google.code.gson:gson:2.8.6'
+    // Guava
+    implementation 'com.google.guava:guava:28.1-jre'
+    // Bukkit for test
+    testImplementation 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
+    // JUnit
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.5.2'
+    // ErrorProne
+    errorprone 'com.google.errorprone:error_prone_core:2.+'
+}
+
+if (!JavaVersion.current().isJava9Compatible()) {
+    dependencies {
+        errorproneJavac 'com.google.errorprone:javac:9+181-r4173-1'
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << '-Xlint:all' << '-Werror'
+}
+
+processResources {
+    filter { String line ->
+        line.replace('$version', version).replace('$name', project.name)
+    }
+}
+
+// Shadow settings
+
+shadowJar {
+    minimize()
+    archiveFileName = "${project.name}-${version}.jar"
+
+    relocate 'com.google', 'com.github.kuro46.japanesechat.libs.google'
+    relocate 'org.checkerframework', 'com.github.kuro46.japanesechat.libs.checkerframework'
+}
+
+artifacts {
+    archives shadowJar
+}
+
+task pluginJar {
+    doFirst {
+        shadowJar {
+            archiveFileName = "${project.name}.jar"
+        }
+    }
+
+    finalizedBy 'shadowJar'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
+}
